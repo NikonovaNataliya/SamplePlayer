@@ -5,11 +5,12 @@ public class xxxMoving : MonoBehaviour {
 
     CharacterController controller;
     Animator anim;
-
-    float h, v;
-    Vector3 direction;
+    public Transform sphere;
     public float speed, speedSideward, speedRun, speedRot;
-  
+    Vector3 direction;
+    float h, v;
+    bool trig = false;
+
 	void Start () {
         controller = GetComponent<CharacterController>();
         anim = GetComponent<Animator>();
@@ -31,6 +32,7 @@ public class xxxMoving : MonoBehaviour {
         direction = Camera.main.transform.TransformDirection(direction);
         direction = new Vector3(direction.x, 0, direction.z);
         //разворот в сторону движения
+ 
         if (v > 0) {
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(direction),
                                                                                  speedRot * Time.deltaTime);
@@ -47,12 +49,13 @@ public class xxxMoving : MonoBehaviour {
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.FromToRotation(Vector3.left, direction),
                                                                                              speedRot * Time.deltaTime);
         }
-        if ((v != 0 && h == 0) || (v != 0 && h != 0))
+      //  if ((v != 0 && h == 0) || (v != 0 && h != 0))
             controller.Move(direction * speed * Time.deltaTime);
-        if (h != 0 && v == 0)
-            controller.Move(direction * speedSideward * Time.deltaTime);
+      //  if (h != 0 )
+       //     controller.Move(direction * speedSideward * Time.deltaTime);
         if (Input.GetKey(KeyCode.X))
             controller.Move(direction * speedRun * Time.deltaTime);
+            
     }
 
     void GeroyAnimation() {
@@ -86,5 +89,22 @@ public class xxxMoving : MonoBehaviour {
             anim.SetBool("Run", true);
         }
         else anim.SetBool("Run", false);
+    }
+    void OnAnimatorIK() {
+        if (trig) {
+            anim.SetLookAtWeight(0.5f);
+            anim.SetLookAtPosition(sphere.position);
+        }
+          //  anim.SetIKPositionWeight(AvatarIKGoal.RightHand, 1f);
+          //  anim.SetIKPosition(AvatarIKGoal.RightHand, sphere.position);
+
+    }
+     void OnTriggerStay(Collider col) {
+        if (col.tag == "Bot") {
+            trig = true;
+        }
+    }
+    void OnTriggerExit(Collider col) {
+        trig = false;
     }
 }
