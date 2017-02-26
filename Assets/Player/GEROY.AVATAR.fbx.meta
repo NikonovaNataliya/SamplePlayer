@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 2ac8a046bd66281488c16aa5053a510e
-timeCreated: 1485427903
+timeCreated: 1486991084
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -3826,11 +3826,11 @@ ModelImporter:
     - boneName: spine.001
       humanName: Spine
       limit:
-        min: {x: 0, y: 0, z: 0}
-        max: {x: 0, y: 0, z: 0}
+        min: {x: -29.999998, y: 0, z: 0}
+        max: {x: 30, y: 0, z: 0}
         value: {x: 0, y: 0, z: 0}
         length: 0
-        modified: 0
+        modified: 1
     - boneName: spine.002
       humanName: Chest
       limit:

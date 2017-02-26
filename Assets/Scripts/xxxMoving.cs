@@ -1,38 +1,68 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
+using System;
 
 public class xxxMoving : MonoBehaviour {
 
     CharacterController controller;
     Animator anim;
+    public GameObject geroyPrefab;
     public Transform sphere;
     public float speed, speedSideward, speedRun, speedRot;
-    Vector3 direction;
+    public Slider slider;
+    Vector3 direction, dir;
+    Quaternion cameraCurrentRotation;
     float h, v;
     bool trig = false;
+    public int health = 10;
+    public Text text;
+    public GameObject child;
+    Transform cam;
 
-	void Start () {
+    void Start () {
         controller = GetComponent<CharacterController>();
         anim = GetComponent<Animator>();
-	}
+        text.enabled = false;
+        child = this.gameObject.transform.GetChild(0).GetChild(0).GetChild(2).gameObject;
+
+    }
+
+    void Update() {
+        h = Input.GetAxis("Horizontal");
+        v = Input.GetAxis("Vertical");
+    }
 
     void FixedUpdate() {
         Move();
         GeroyAnimation();
+        GeroyHealth();
     }
 
-    void Update () {
-        h = Input.GetAxis("Horizontal");
-        v = Input.GetAxis("Vertical");
-	}
+     void GeroyHealth() {
+        slider.value = health;
+        if(health <= 0) {
+            Death();
+            GameObject.FindGameObjectWithTag("Bot").GetComponent<Animator>().Stop();
+        }
+    }
+    void Death() {
+        gameObject.SetActive(false);
+        Instantiate(geroyPrefab, transform.position, transform.rotation);
+        text.enabled = true;
+
+    }
+
 
     void Move() {
         //вектор направления движения
         direction = new Vector3(h, 0, v);
         direction = Camera.main.transform.TransformDirection(direction);
         direction = new Vector3(direction.x, 0, direction.z);
+        cameraCurrentRotation = Camera.main.transform.rotation;
         //разворот в сторону движения
- 
+
+
         if (v > 0) {
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(direction),
                                                                                  speedRot * Time.deltaTime);
@@ -55,7 +85,8 @@ public class xxxMoving : MonoBehaviour {
        //     controller.Move(direction * speedSideward * Time.deltaTime);
         if (Input.GetKey(KeyCode.X))
             controller.Move(direction * speedRun * Time.deltaTime);
-            
+
+
     }
 
     void GeroyAnimation() {
@@ -81,6 +112,8 @@ public class xxxMoving : MonoBehaviour {
         }
 
         if (Input.GetMouseButton(0)) {
+            transform.rotation = Quaternion.Lerp(transform.rotation, cameraCurrentRotation, 
+                                                                  speedRot * Time.deltaTime);
             anim.SetBool("Attack", true);
         }
         else anim.SetBool("Attack", false);
@@ -95,8 +128,6 @@ public class xxxMoving : MonoBehaviour {
             anim.SetLookAtWeight(0.5f);
             anim.SetLookAtPosition(sphere.position);
         }
-          //  anim.SetIKPositionWeight(AvatarIKGoal.RightHand, 1f);
-          //  anim.SetIKPosition(AvatarIKGoal.RightHand, sphere.position);
 
     }
      void OnTriggerStay(Collider col) {

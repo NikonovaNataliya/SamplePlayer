@@ -39,7 +39,7 @@ public class CamRayDubina : MonoBehaviour {
     }
     Vector3 PositionCorrection(Vector3 target, Vector3 position) { 
             RaycastHit hit;
-        Debug.DrawLine(target, position, Color.blue);
+        Debug.DrawLine(target + new Vector3(0,2,0), position, Color.blue);
         if (Physics.Linecast(target,position,out hit)) {
             float TempDistance = Vector3.Distance(target, hit.point);
             Vector3 pos = target - (transform.rotation * Vector3.forward * TempDistance);
@@ -57,7 +57,7 @@ public class CamRayDubina : MonoBehaviour {
             if (inversionY == InversionY.Disabled) inversY = -1; else inversY = 1;
 
             transform.RotateAround(transform.position, Vector3.up, Input.GetAxis("Mouse X") * sensitivity * inversX);
-            
+
             Vector3 position = player.position - (transform.rotation * Vector3.forward * distanse);
             position = position + (transform.rotation * Vector3.right * offsetPosition);
             position = new Vector3(position.x, player.position.y + height, position.z);

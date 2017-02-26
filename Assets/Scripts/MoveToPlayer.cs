@@ -3,13 +3,13 @@ using System.Collections;
 
 public class MoveToPlayer : MonoBehaviour {
 
-    public Transform player;
-    public float speedRot;
-    // public float speedMove;
-    public float minDist, minDist2;
     NavMeshAgent agent;
     Animator anim;
-    Vector3 startPosition, currentPosition, attackPosition;
+    public Transform player;
+    public float speedRot;
+    public float startMinDist, attackMinDist, attackDist;
+    Vector3 startPosition, attackPosition;
+    Vector3 attackPoint;
 
     void Start() {
 
@@ -20,27 +20,38 @@ public class MoveToPlayer : MonoBehaviour {
 
     void Update() {
 
-        currentPosition = transform.position;
-        attackPosition = player.transform.position + new Vector3(-2, 0, 0);
-        if (Vector3.Distance(startPosition, currentPosition) <= minDist)
+        attackPoint = player.position - (transform.rotation * Vector3.forward * attackDist);
+        attackPosition = PositionCorretion(player.position, attackPoint);
+
+        if (Vector3.Distance(startPosition, transform.position) <= startMinDist)
             anim.SetBool("Move", false);
-        if (Vector3.Distance(attackPosition, currentPosition) <= minDist2) {
+        if (Vector3.Distance(attackPosition, transform.position) <= attackMinDist) {
             anim.SetBool("Move", false);
             anim.SetBool("Attack", true);
         }
-        else anim.SetBool("Attack", false);
+        else 
+            anim.SetBool("Attack", false);
 
-        Vector3 directon = player.position - transform.position;
-        Vector3 newDirection = Vector3.RotateTowards(transform.forward, directon, speedRot * Time.deltaTime, 0);
-        Debug.DrawRay(transform.position, newDirection, Color.red);
-        transform.rotation = Quaternion.LookRotation(newDirection);
+    }
+    Vector3 PositionCorretion(Vector3 target, Vector3 position) {
+        Debug.DrawLine(target, position, Color.blue);
+        RaycastHit hit;
+        if (Physics.Linecast(target, position, out hit)) {
+            float dist = Vector3.Distance(target, hit.point);
+            position = target - (transform.rotation * Vector3.forward * dist);
+        }
+        return position;
     }
 
-
     void OnTriggerStay(Collider other) {
+        if (other.gameObject.name == "GEROY") {
+            agent.SetDestination(attackPosition);
+            anim.SetBool("Move", true);
+            Vector3 directon = player.position - transform.position;
+            Vector3 newDirection = Vector3.RotateTowards(transform.forward, directon, speedRot * Time.deltaTime, 0);
+            transform.rotation = Quaternion.LookRotation(newDirection);
+        }
 
-        agent.SetDestination(attackPosition);
-        anim.SetBool("Move", true);
     }
     void OnTriggerExit(Collider other) {
 
