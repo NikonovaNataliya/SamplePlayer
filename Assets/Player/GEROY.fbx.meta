@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 39465958df756da438f808117f602c64
-timeCreated: 1488356160
+guid: 5e320fcd1ee2afb41b31025887ec7e0e
+timeCreated: 1488400855
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -4231,23 +4231,23 @@ ModelImporter:
       transformModified: 1
     - name: thigh.R
       position: {x: 0.15961711, y: 0.021678383, z: 0.041362505}
-      rotation: {x: 0.9917499, y: 0.000000016399426, z: 0.0000000018323084, w: 0.12818858}
-      scale: {x: 1, y: 0.9999988, z: 0.99999887}
+      rotation: {x: 0.9917499, y: 0.000000016399426, z: 0.000000001832337, w: 0.12818858}
+      scale: {x: 1, y: 0.99999887, z: 0.99999887}
       transformModified: 1
     - name: shin.R
       position: {x: 8.5860563e-10, y: 0.29747915, z: -0.0000000048533138}
-      rotation: {x: 0.14753847, y: -0.000000001607426, z: 0.000000017706922, w: 0.98905635}
-      scale: {x: 1, y: 1.000001, z: 0.9999992}
+      rotation: {x: 0.14753848, y: -0.0000000016074686, z: 0.000000017706922, w: 0.98905635}
+      scale: {x: 1, y: 1.0000011, z: 0.99999934}
       transformModified: 1
     - name: foot.R
       position: {x: -0.000000009258177, y: 0.3951392, z: 0.000000003715063}
-      rotation: {x: -0.66502655, y: 0.0000010654189, z: -0.000001108105, w: 0.7468197}
-      scale: {x: 1, y: 1.0000015, z: 1.0000007}
+      rotation: {x: -0.66502666, y: 0.000001065419, z: -0.0000011081052, w: 0.74681973}
+      scale: {x: 1, y: 1.0000013, z: 1.0000013}
       transformModified: 1
     - name: toe.R
       position: {x: 0.0000000071261637, y: 0.21261393, z: 0.0000000012725285}
-      rotation: {x: 0.00000019059792, y: 0.9915209, z: -0.12994783, w: 0.000001611438}
-      scale: {x: 1.0000014, y: 1.0000021, z: 0.99999976}
+      rotation: {x: 0.00000019059794, y: 0.9915209, z: -0.12994777, w: 0.000001611438}
+      scale: {x: 1.0000012, y: 1.0000017, z: 0.999999}
       transformModified: 1
     - name: toe.R_end
       position: {x: -0, y: 0.12070257, z: 0}
@@ -4256,8 +4256,8 @@ ModelImporter:
       transformModified: 1
     - name: heel.02.R
       position: {x: -0.0957528, y: -0.0053922264, z: 0.07196608}
-      rotation: {x: -0.7011114, y: -0.70111096, z: 0.0918858, w: -0.091887966}
-      scale: {x: 1.0000007, y: 0.99999976, z: 0.9999984}
+      rotation: {x: -0.7011113, y: -0.7011109, z: 0.09188575, w: -0.09188792}
+      scale: {x: 1.0000005, y: 0.9999995, z: 0.999997}
       transformModified: 1
     - name: heel.02.R_end
       position: {x: -0, y: 0.18024924, z: 0}
