@@ -3,7 +3,7 @@ using System.Collections;
 
 public class MoveToPlayer : MonoBehaviour {
 
-    NavMeshAgent agent;
+    UnityEngine.AI.NavMeshAgent agent;
     Animator anim;
     public Transform player;
     public float speedRot;
@@ -14,7 +14,7 @@ public class MoveToPlayer : MonoBehaviour {
     void Start() {
 
         anim = GetComponent<Animator>();
-        agent = GetComponent<NavMeshAgent>();
+        agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
         startPosition = transform.position;
     }
 

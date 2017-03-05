@@ -11,6 +11,10 @@ public class CharController : MonoBehaviour {
     private GameObject child;
     [SerializeField]
     private GameObject headChild;
+    [SerializeField]
+    private Transform m_rotationTargetHead;
+    [SerializeField]
+    private Transform m_rotationTargetBody;
 
     public static CharacterController unityController;
     public static CharController instance;
@@ -22,12 +26,17 @@ public class CharController : MonoBehaviour {
     public float v, h, speedSideward;
     Vector3 orientationFix = new Vector3(90, 0, 0);
     Vector3 orientationFixHead = new Vector3(110, 0, 0);
+    private Quaternion m_currentHeadRotation;
+    private Quaternion m_currentBodyRotation;
+    
 
     void Awake() {
         instance = this;
         unityController = GetComponent<CharacterController>();
         anim = GetComponent<Animator>();
         _axis = transform.InverseTransformDirection(transform.up);
+        this.m_currentHeadRotation = headChild.transform.localRotation;
+        this.m_currentBodyRotation = child.transform.localRotation;
     }
 
     void Update() {
@@ -39,7 +48,8 @@ public class CharController : MonoBehaviour {
     }
 
     void LateUpdate() {
-        ChildRot();
+        RecalcTargetRotation();
+        LerpBody();
     }
     private Transform _GetLimitedCameraTransform() {
 
@@ -47,35 +57,44 @@ public class CharController : MonoBehaviour {
         float angleLeftLimit = Quaternion.Angle(transform.rotation, m_leftRotationLimit.rotation);
         float angleRighrLimit = Quaternion.Angle(transform.rotation, m_rightRotationLimit.rotation);
 
-        if (angleCamera < angleLeftLimit && angleCamera < angleRighrLimit) {
+        if( angleCamera < angleLeftLimit && angleCamera < angleRighrLimit ) {
             return Camera.main.transform;
-        }
-        else {
-            return transform;
         }
 
         float angleCameraToLeftLimit = Quaternion.Angle(Camera.main.transform.rotation, m_rightRotationLimit.rotation);
         float angleCameraToRightLimit = Quaternion.Angle(Camera.main.transform.rotation, m_leftRotationLimit.rotation);
 
-        if (angleCameraToLeftLimit < angleCameraToRightLimit) {
+        if ( angleCameraToLeftLimit < angleCameraToRightLimit ) {
             return m_rightRotationLimit;
-        }
-        else {
+        } else {
             return m_leftRotationLimit;
         }
     }
-    void ChildRot() {                            // нужно сделать, чтобы поворот в исходную позицию происходил плавно
+    void RecalcTargetRotation() {
 
 
         Transform cameraLimitedTransform = _GetLimitedCameraTransform();
 
-        Vector3 up = transform.InverseTransformDirection(cameraLimitedTransform.position - headChild.transform.position);
-        Quaternion rotation = Quaternion.LookRotation(_axis, up) * Quaternion.Euler(orientationFixHead);
-        headChild.transform.localRotation = rotation;
+        Vector3 uphead = transform.InverseTransformDirection(cameraLimitedTransform.position - m_rotationTargetHead.transform.position);
+        uphead.y = 0;
+        Quaternion rotationhead = Quaternion.LookRotation(_axis, uphead) * Quaternion.Euler(orientationFixHead);
+        m_rotationTargetHead.transform.localRotation = rotationhead;
 
-        Vector3 UP = transform.InverseTransformDirection(cameraLimitedTransform.position - child.transform.position);
-        Quaternion rotate = Quaternion.LookRotation(_axis, UP) * Quaternion.Euler(orientationFix);
-        child.transform.localRotation = rotate;
+        Vector3 upbody = transform.InverseTransformDirection(cameraLimitedTransform.position  - m_rotationTargetBody.transform.position);
+        Quaternion rotationbody = Quaternion.LookRotation(_axis,upbody) * Quaternion.Euler(orientationFix);
+        m_rotationTargetBody.transform.localRotation = rotationbody;
+
+    }
+    private void LerpBody() {
+        m_currentHeadRotation = _GetPartOfRotation( m_currentHeadRotation, m_rotationTargetHead.localRotation );
+        m_currentBodyRotation = _GetPartOfRotation( m_currentBodyRotation, m_rotationTargetBody.localRotation );
+        headChild.transform.localRotation = m_currentHeadRotation;
+        child.transform.localRotation = m_currentBodyRotation;
+
+    }
+    [SerializeField] private float m_rotationMultiply = 0.5f;
+    private Quaternion _GetPartOfRotation( Quaternion from, Quaternion to ) {
+        return Quaternion.Slerp( from, to, m_rotationMultiply * Time.deltaTime );
     }
     void GetInput() {
         CharMotor chM = CharMotor.instance;

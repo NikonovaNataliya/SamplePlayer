@@ -4,7 +4,7 @@ using System.Collections;
 public class MoveBot : MonoBehaviour {
 
     Animator anim;
-    NavMeshAgent agent;
+    UnityEngine.AI.NavMeshAgent agent;
 
     public Transform currentPosition;
     public float speed;
@@ -13,7 +13,7 @@ public class MoveBot : MonoBehaviour {
     void Start() {
 
         anim = GetComponent<Animator>();
-        agent = GetComponent<NavMeshAgent>();
+        agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
         Invoke("Moving", 17f);
     }
 
