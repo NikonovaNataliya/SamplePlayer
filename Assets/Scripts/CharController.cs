@@ -23,11 +23,12 @@ public class CharController : MonoBehaviour {
 
     Animator anim;
     private const float _DEAD_ZONE = 0.1f;
-    public float v, h, speedSideward;
+    public float v, h, speedRot;
     Vector3 orientationFix = new Vector3(90, 0, 0);
     Vector3 orientationFixHead = new Vector3(110, 0, 0);
     private Quaternion m_currentHeadRotation;
     private Quaternion m_currentBodyRotation;
+    [SerializeField] private float m_rotationMultiply = 0.5f;
     
 
     void Awake() {
@@ -40,17 +41,20 @@ public class CharController : MonoBehaviour {
     }
 
     void Update() {
-        if (Camera.main == null) return;
+        // if (Camera.main == null) return;
 
-        GetInput();
-        CharMotor.instance.UpdateMotor(move);
-        GeroyAnimation();
+        // GetInput();
+        // CharMotor.instance.UpdateMotor(move);
+       // CharMotor.instance.Moving(move);
+        // GeroyAnimation();
     }
 
     void LateUpdate() {
         RecalcTargetRotation();
         LerpBody();
     }
+
+
     private Transform _GetLimitedCameraTransform() {
 
         float angleCamera = Quaternion.Angle(transform.rotation, Camera.main.transform.rotation);
@@ -92,10 +96,20 @@ public class CharController : MonoBehaviour {
         child.transform.localRotation = m_currentBodyRotation;
 
     }
-    [SerializeField] private float m_rotationMultiply = 0.5f;
     private Quaternion _GetPartOfRotation( Quaternion from, Quaternion to ) {
         return Quaternion.Slerp( from, to, m_rotationMultiply * Time.deltaTime );
     }
+
+
+    //private Transform _StartTransform() {
+    //    Quaternion rotation = Quaternion.FromToRotation(child.transform.forward, transform.forward);
+
+    //    child.transform.localRotation = Quaternion.Lerp(child.transform.localRotation, rotation, speedRot * Time.deltaTime);
+
+    //    return child.transform;
+    //}
+
+
     void GetInput() {
         CharMotor chM = CharMotor.instance;
          v = Input.GetAxis("Vertical");
