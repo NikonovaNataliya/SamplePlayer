@@ -19,7 +19,7 @@ public class CharController : MonoBehaviour {
 
     Animator anim;
     private const float _DEAD_ZONE = 0.1f;
-    public float v, h, speedSideward;
+    public float v, h, speedRot;
     Vector3 orientationFix = new Vector3(90, 0, 0);
     Vector3 orientationFixHead = new Vector3(110, 0, 0);
 
@@ -35,12 +35,16 @@ public class CharController : MonoBehaviour {
 
         GetInput();
         CharMotor.instance.UpdateMotor(move);
+       // CharMotor.instance.Moving(move);
         GeroyAnimation();
     }
 
     void LateUpdate() {
+
         ChildRot();
     }
+
+
     private Transform _GetLimitedCameraTransform() {
 
         float angleCamera = Quaternion.Angle(transform.rotation, Camera.main.transform.rotation);
@@ -51,18 +55,19 @@ public class CharController : MonoBehaviour {
             return Camera.main.transform;
         }
         else {
-            return transform;
+            //return _StartTransform();
+            return child.transform;
         }
 
-        float angleCameraToLeftLimit = Quaternion.Angle(Camera.main.transform.rotation, m_rightRotationLimit.rotation);
-        float angleCameraToRightLimit = Quaternion.Angle(Camera.main.transform.rotation, m_leftRotationLimit.rotation);
+        //float angleCameraToLeftLimit = Quaternion.Angle(Camera.main.transform.rotation, m_rightRotationLimit.rotation);
+        //float angleCameraToRightLimit = Quaternion.Angle(Camera.main.transform.rotation, m_leftRotationLimit.rotation);
 
-        if (angleCameraToLeftLimit < angleCameraToRightLimit) {
-            return m_rightRotationLimit;
-        }
-        else {
-            return m_leftRotationLimit;
-        }
+        //if (angleCameraToLeftLimit < angleCameraToRightLimit) {
+        //    return m_rightRotationLimit;
+        //}
+        //else {
+        //    return m_leftRotationLimit;
+        //}
     }
     void ChildRot() {                            // нужно сделать, чтобы поворот в исходную позицию происходил плавно
 
@@ -76,7 +81,21 @@ public class CharController : MonoBehaviour {
         Vector3 UP = transform.InverseTransformDirection(cameraLimitedTransform.position - child.transform.position);
         Quaternion rotate = Quaternion.LookRotation(_axis, UP) * Quaternion.Euler(orientationFix);
         child.transform.localRotation = rotate;
+
+        Quaternion rot = Quaternion.FromToRotation(cameraLimitedTransform.forward, transform.forward);
+        child.transform.localRotation = Quaternion.Slerp(child.transform.localRotation, rot, speedRot * Time.deltaTime);
     }
+
+
+    //private Transform _StartTransform() {
+    //    Quaternion rotation = Quaternion.FromToRotation(child.transform.forward, transform.forward);
+
+    //    child.transform.localRotation = Quaternion.Lerp(child.transform.localRotation, rotation, speedRot * Time.deltaTime);
+
+    //    return child.transform;
+    //}
+
+
     void GetInput() {
         CharMotor chM = CharMotor.instance;
          v = Input.GetAxis("Vertical");
