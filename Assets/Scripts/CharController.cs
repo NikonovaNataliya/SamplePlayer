@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public class CharController : MonoBehaviour {
-
+class CharController : MonoBehaviour
+{
     [SerializeField]
     private Transform m_leftRotationLimit;
     [SerializeField]
@@ -16,37 +15,62 @@ public class CharController : MonoBehaviour {
     [SerializeField]
     private Transform m_rotationTargetBody;
 
-    public static CharacterController unityController;
-    public static CharController instance;
-    public Vector3 move;
-    Vector3 _axis;
+    public float vert, horiz;
+    private bool _isControlable = true;
+    public bool IsControllable
+    {
+        get { return _isControlable; }
+        set
+        {
+            SendMessage("_SwitchControl", value, SendMessageOptions.DontRequireReceiver);
+            _isControlable = value;
+        }
+    }
 
-    Animator anim;
+    //Результат - вектор движения.
+    public Vector3 move;
+
+    private Vector3 _axis;
+    //Размер мертвой зоны
     private const float _DEAD_ZONE = 0.1f;
-    public float v, h, speedRot;
+
     Vector3 orientationFix = new Vector3(90, 0, 0);
     Vector3 orientationFixHead = new Vector3(110, 0, 0);
     private Quaternion m_currentHeadRotation;
     private Quaternion m_currentBodyRotation;
-    [SerializeField] private float m_rotationMultiply = 0.5f;
-    
+    [SerializeField]
+    private float m_rotationMultiply = 0.5f;
 
-    void Awake() {
-        instance = this;
-        unityController = GetComponent<CharacterController>();
-        anim = GetComponent<Animator>();
+    void Awake()
+    {
+        //Просим у класса камеры найти камеру в сцене
+        CharTPSCamera.GetCamera();
         _axis = transform.InverseTransformDirection(transform.up);
         this.m_currentHeadRotation = headChild.transform.localRotation;
         this.m_currentBodyRotation = child.transform.localRotation;
     }
 
-    void Update() {
-        // if (Camera.main == null) return;
+    void Update()
+    {
+        //Если камеры нет - ничего не делаем
+        if (Camera.main == null) return;
+        if (!IsControllable) return;
 
-        // GetInput();
-        // CharMotor.instance.UpdateMotor(move);
-       // CharMotor.instance.Moving(move);
-        // GeroyAnimation();
+        _GetHandleInput();
+        //Обрабатываем введенные игроком данные
+        _GetMoveInput();
+        //Говорим CharMotor, что пора двигаться
+                                                          //здесь я собиралась применить bool isFall
+        if (!Input.GetKey(KeyCode.F)) {
+            SendMessage("_DidMove", move, SendMessageOptions.DontRequireReceiver);
+        }
+
+                                          // но, даже если бы булька работала, на "бег" все равно не распространяется.
+                                          // останавливается только при ходьбе
+                                                            
+
+
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     void LateUpdate() {
@@ -54,6 +78,35 @@ public class CharController : MonoBehaviour {
         LerpBody();
     }
 
+    private void _GetMoveInput()
+    {
+        //На сколько сместились по "вертикали" (т.е. вперед/назад)
+        vert = Input.GetAxis("Vertical");
+        //На сколько сместились по "горизонтали" (т.е. влево/вправо)
+        horiz = Input.GetAxis("Horizontal");
+
+        //Обнуляем вектор движения.
+        move = Vector3.zero;
+
+        //Если смещение по "вертикали" вышло из мертвой зоны
+        if (vert > _DEAD_ZONE || vert < -_DEAD_ZONE)
+            //Прибавляем к вектору движения это смещение
+            move += new Vector3(0, 0, vert);
+        //Если смещение по "горизонтали" вышло из мертвой зоны
+        if (horiz > _DEAD_ZONE || horiz < -_DEAD_ZONE)
+            //Прибавляем к вектору движения это смещение
+            move += new Vector3(horiz, 0, 0);
+        if (Input.GetKey(KeyCode.F)) {
+            move = Vector3.zero;
+        }
+    }
+
+    private void _GetHandleInput()
+    {
+        //Если клавиша jump не нажата - ничего не делаем
+        if (!Input.GetButton("Jump")) return;
+        SendMessage("_DidJump", SendMessageOptions.DontRequireReceiver);
+    }
 
     private Transform _GetLimitedCameraTransform() {
 
@@ -61,16 +114,17 @@ public class CharController : MonoBehaviour {
         float angleLeftLimit = Quaternion.Angle(transform.rotation, m_leftRotationLimit.rotation);
         float angleRighrLimit = Quaternion.Angle(transform.rotation, m_rightRotationLimit.rotation);
 
-        if( angleCamera < angleLeftLimit && angleCamera < angleRighrLimit ) {
+        if (angleCamera < angleLeftLimit && angleCamera < angleRighrLimit) {
             return Camera.main.transform;
         }
 
         float angleCameraToLeftLimit = Quaternion.Angle(Camera.main.transform.rotation, m_rightRotationLimit.rotation);
         float angleCameraToRightLimit = Quaternion.Angle(Camera.main.transform.rotation, m_leftRotationLimit.rotation);
 
-        if ( angleCameraToLeftLimit < angleCameraToRightLimit ) {
+        if (angleCameraToLeftLimit < angleCameraToRightLimit) {
             return m_rightRotationLimit;
-        } else {
+        }
+        else {
             return m_leftRotationLimit;
         }
     }
@@ -84,72 +138,19 @@ public class CharController : MonoBehaviour {
         Quaternion rotationhead = Quaternion.LookRotation(_axis, uphead) * Quaternion.Euler(orientationFixHead);
         m_rotationTargetHead.transform.localRotation = rotationhead;
 
-        Vector3 upbody = transform.InverseTransformDirection(cameraLimitedTransform.position  - m_rotationTargetBody.transform.position);
-        Quaternion rotationbody = Quaternion.LookRotation(_axis,upbody) * Quaternion.Euler(orientationFix);
+        Vector3 upbody = transform.InverseTransformDirection(cameraLimitedTransform.position - m_rotationTargetBody.transform.position);
+        Quaternion rotationbody = Quaternion.LookRotation(_axis, upbody) * Quaternion.Euler(orientationFix);
         m_rotationTargetBody.transform.localRotation = rotationbody;
 
     }
     private void LerpBody() {
-        m_currentHeadRotation = _GetPartOfRotation( m_currentHeadRotation, m_rotationTargetHead.localRotation );
-        m_currentBodyRotation = _GetPartOfRotation( m_currentBodyRotation, m_rotationTargetBody.localRotation );
+        m_currentHeadRotation = _GetPartOfRotation(m_currentHeadRotation, m_rotationTargetHead.localRotation);
+        m_currentBodyRotation = _GetPartOfRotation(m_currentBodyRotation, m_rotationTargetBody.localRotation);
         headChild.transform.localRotation = m_currentHeadRotation;
         child.transform.localRotation = m_currentBodyRotation;
 
     }
-    private Quaternion _GetPartOfRotation( Quaternion from, Quaternion to ) {
-        return Quaternion.Slerp( from, to, m_rotationMultiply * Time.deltaTime );
-    }
-
-
-    //private Transform _StartTransform() {
-    //    Quaternion rotation = Quaternion.FromToRotation(child.transform.forward, transform.forward);
-
-    //    child.transform.localRotation = Quaternion.Lerp(child.transform.localRotation, rotation, speedRot * Time.deltaTime);
-
-    //    return child.transform;
-    //}
-
-
-    void GetInput() {
-        CharMotor chM = CharMotor.instance;
-         v = Input.GetAxis("Vertical");
-         h = Input.GetAxis("Horizontal");
-        move = Vector3.zero;
-        if (v > _DEAD_ZONE || v < -_DEAD_ZONE)
-            move += new Vector3(0, 0, v);
-        if (h > _DEAD_ZONE || h < _DEAD_ZONE)
-            move += new Vector3(h, 0, 0);
-    }
-    void GeroyAnimation() {
-
-        anim.SetFloat("Vertical", v, 0.01f, Time.fixedDeltaTime);
-        anim.SetFloat("Horizontal", h, 0.01f, Time.fixedDeltaTime);
-
-        if (v == 0 && h != 0) {
-            anim.SetBool("Sideward", true);
-            anim.SetBool("Move", false);
-        }
-        if (v != 0 && h == 0) {
-            anim.SetBool("Sideward", false);
-            anim.SetBool("Move", true);
-        }
-        if (v == 0 && h == 0) {
-            anim.SetBool("Sideward", false);
-            anim.SetBool("Move", false);
-        }
-        if (v != 0 && h != 0) {
-            anim.SetBool("Sideward", false);
-            anim.SetBool("Move", true);
-        }
-
-        if (Input.GetMouseButton(0)) {
-            anim.SetBool("Attack", true);
-        }
-        else anim.SetBool("Attack", false);
-
-        if (Input.GetKey(KeyCode.X)) {
-            anim.SetBool("Run", true);
-        }
-        else anim.SetBool("Run", false);
+    private Quaternion _GetPartOfRotation(Quaternion from, Quaternion to) {
+        return Quaternion.Slerp(from, to, m_rotationMultiply * Time.deltaTime);
     }
 }
