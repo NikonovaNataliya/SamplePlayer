@@ -22,7 +22,6 @@ public class MoveToPlayer : MonoBehaviour {
 
         attackPoint = player.position - (transform.rotation * Vector3.forward * attackDist);
         attackPosition = PositionCorretion(player.position, attackPoint);
-
         if (Vector3.Distance(startPosition, transform.position) <= startMinDist)
             anim.SetBool("Move", false);
         if (Vector3.Distance(attackPosition, transform.position) <= attackMinDist) {
@@ -31,7 +30,6 @@ public class MoveToPlayer : MonoBehaviour {
         }
         else 
             anim.SetBool("Attack", false);
-
     }
     Vector3 PositionCorretion(Vector3 target, Vector3 position) {
         Debug.DrawLine(target, position, Color.blue);

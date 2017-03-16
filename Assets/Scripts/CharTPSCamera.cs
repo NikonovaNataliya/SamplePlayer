@@ -18,11 +18,11 @@ class CharTPSCamera : MonoBehaviour
 
 //#region Constant
     //Начальное расстояние от камеры до персонажа.
-    private const float _START_DISTANCE = 4f;  //2
+    private const float _START_DISTANCE = 4f;  
     //Минимальное расстояние от камеры до персонажа.
     private const float _DISTANCE_MIN = _START_DISTANCE;
     //Максимальное расстояние от камеры до персонажа.
-    private const float _DISTANCE_MAX = 12f;  //12
+    private const float _DISTANCE_MAX = 12f;  
     //Параметр смягчения приближения/удаления камеры
     private const float _DISTANCE_SMOOTH = 0.05f;
     //Параметр смягчения восстановления расстояния от камеры
@@ -39,8 +39,8 @@ class CharTPSCamera : MonoBehaviour
     private const float _DEAD_ZONE = 0.01f;
 
     //Ограничения вращения по вертикали - минимальное и максимальное
-    private const float _Y_MIN_LIMIT = -10f;  //-40
-    private const float _Y_MAX_LIMIT = 20f;    //80
+    private const float _Y_MIN_LIMIT = 0f;  
+    private const float _Y_MAX_LIMIT = 60f;    
 
     //Максимальное количество шагов рассчета окклюжн камеры
     private const int _MAX_OCCLUSION_CHECK = 10;

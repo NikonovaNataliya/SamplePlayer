@@ -47,7 +47,7 @@ public class CharAnimation : MonoBehaviour {
             anim.SetBool("Sideward", false);
             anim.SetBool("Move", true);
         }
-        ind = Random.Range(0, 7);
+        ind = Random.Range(0, 6);
         if (Input.GetMouseButton(0)) {
             anim.SetFloat("Attack", ind);
             anim.SetBool("Attack1", true);
