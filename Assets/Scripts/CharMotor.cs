@@ -37,7 +37,7 @@ public class CharMotor : MonoBehaviour
     //Вертикальная скорость
     private float _verticalVelocity;
     public float _horizontalVelocity;
-
+    public float _speedRot;
     void Awake()
     {
         //кешируем трансформ
@@ -81,13 +81,21 @@ public class CharMotor : MonoBehaviour
 
     private void _RotateChar(Vector3 move)
     {
+
         //Проверяем - двигается ли персонаж?
         if (move.x != 0 || move.z != 0)
         {
             //Если двигается - уставливаем его поворот в соответствии с поворотом камеры. Т.к. это нужно сделать только вокруг оси Y,
             //а вокруг X и Z оставить неизменным, то используем метод, который конструирует вращение из трех углов
-            transform.rotation = Quaternion.Euler(transform.eulerAngles.x, Camera.main.transform.eulerAngles.y, transform.eulerAngles.z);
+
+            // transform.rotation = Quaternion.Euler(transform.eulerAngles.x, Camera.main.transform.eulerAngles.y, transform.eulerAngles.z);
+
+            Vector3 camForward = Camera.main.transform.rotation.eulerAngles;
+            transform.rotation = _GetRotation(transform.rotation, Quaternion.Euler(new Vector3(0, camForward.y, 0)));
         }
+    }
+    private Quaternion _GetRotation(Quaternion from, Quaternion to) {
+        return Quaternion.Slerp(from, to, _speedRot * Time.deltaTime);
     }
 
     private Vector3 _ApplyGravity(Vector3 move)
